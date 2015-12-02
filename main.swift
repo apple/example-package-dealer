@@ -8,6 +8,10 @@
  See http://swift.org/CONTRIBUTORS.txt for Swift project authors
 */
 
+#if os(Linux)
+import Glibc
+#endif
+
 import DeckOfPlayingCards
 
 let numberOfCards = 10
