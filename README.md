@@ -1,3 +1,11 @@
+# Example Package with [Workspace](https://github.com/SDGGiesbrecht/Workspace)
+
+This repository serves as a demonstration of Workspace. It is a fork of Apple’s example package modified only by applying Workspace to it.
+
+(What follows is Apple’s original read‐me.)
+
+***
+
 To build this example package:
 
     git clone https://github.com/apple/example-package-dealer.git
