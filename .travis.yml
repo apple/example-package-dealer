@@ -1,0 +1,74 @@
+# .travis.yml
+#
+# This source file is part of the dealer open source project.
+#
+# Copyright ©2018 the dealer project contributors.
+#
+# Licensed under the Apache Licence, Version 2.0.
+# See http://www.apache.org/licenses/LICENSE-2.0 for licence information.
+
+language: generic
+matrix:
+  include:
+    - os: osx
+      env:
+        - JOB="macOS + Swift Package Manager"
+      osx_image: xcode9.4
+      script:
+        - "bash \"./Refresh (macOS).command\""
+        - "bash \"./Validate (macOS).command\" •job macos‐swift‐package‐manager"
+    - os: osx
+      env:
+        - JOB="macOS + Xcode"
+      osx_image: xcode9.4
+      script:
+        - "bash \"./Refresh (macOS).command\""
+        - "bash \"./Validate (macOS).command\" •job macos‐xcode"
+    - os: linux
+      env:
+        - JOB="Linux"
+      dist: trusty
+      script:
+        - "export SWIFT_VERSION=4.1.2"
+        - "eval \"$(curl -sL https://gist.githubusercontent.com/kylef/5c0475ff02b7c7671d2a/raw/9f442512a46d7a2af7b850d65a7e9bd31edfb09b/swiftenv-install.sh)\""
+        - "bash \"./Refresh (macOS).command\""
+        - "bash \"./Validate (macOS).command\" •job linux"
+    - os: osx
+      env:
+        - JOB="iOS"
+      osx_image: xcode9.4
+      language: objective-c
+      xcode_sdk: iphonesimulator
+      script:
+        - "bash \"./Refresh (macOS).command\""
+        - "bash \"./Validate (macOS).command\" •job ios"
+    - os: osx
+      env:
+        - JOB="watchOS"
+      osx_image: xcode9.4
+      script:
+        - "bash \"./Refresh (macOS).command\""
+        - "bash \"./Validate (macOS).command\" •job watchos"
+    - os: osx
+      env:
+        - JOB="tvOS"
+      osx_image: xcode9.4
+      language: objective-c
+      xcode_sdk: appletvsimulator
+      script:
+        - "bash \"./Refresh (macOS).command\""
+        - "bash \"./Validate (macOS).command\" •job tvos"
+    - os: linux
+      env:
+        - JOB="Miscellaneous"
+      dist: trusty
+      script:
+        - "export SWIFT_VERSION=4.1.2"
+        - "eval \"$(curl -sL https://gist.githubusercontent.com/kylef/5c0475ff02b7c7671d2a/raw/9f442512a46d7a2af7b850d65a7e9bd31edfb09b/swiftenv-install.sh)\""
+        - "bash \"./Refresh (macOS).command\""
+        - "bash \"./Validate (macOS).command\" •job miscellaneous"
+
+cache:
+  directories:
+  - $HOME/Library/Caches/ca.solideogloria.Workspace
+  - $HOME/.cache/ca.solideogloria.Workspace
