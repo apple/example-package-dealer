@@ -28,5 +28,8 @@ let package = Package(
         .target(
             name: "Dealer",
             dependencies: ["DeckOfPlayingCards"]),
+        .testTarget(
+            name: "DealerTests",
+            dependencies: ["Dealer"]),
     ]
 )
