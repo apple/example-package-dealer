@@ -13,10 +13,21 @@ import Glibc
 srandom(UInt32(clock()))
 #endif
 
+import Foundation
 import DeckOfPlayingCards
 import ArgumentParser
 
+var stdout = FileHandle.standardOutput
+var stderr = FileHandle.standardError
+
 struct Deal: ParsableCommand {
+    static var configuration = CommandConfiguration(
+            abstract: "Shuffles a deck of playing cards and deals a number of cards.",
+            discussion: """
+                Prints each card to stdout until the deck is completely dealt,
+                and prints "No more cards" to stderr if there are no cards remaining.
+                """)
+
     @Argument(help: "The number of cards to deal.")
     var count: UInt = 10
 
@@ -26,11 +37,11 @@ struct Deal: ParsableCommand {
 
         for _ in 0..<count {
             guard let card = deck.deal() else {
-                print("No More Cards!")
+                print("No more cards", to: &stderr)
                 break
             }
 
-            print(card)
+            print(card, to: &stdout)
         }
     }
 }
