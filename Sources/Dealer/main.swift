@@ -14,17 +14,25 @@ srandom(UInt32(clock()))
 #endif
 
 import DeckOfPlayingCards
+import ArgumentParser
 
-let numberOfCards = 10
+struct Deal: ParsableCommand {
+    @Argument(help: "The number of cards to deal.")
+    var numberOfCards: Int = 10
 
-var deck = Deck.standard52CardDeck()
-deck.shuffle()
+    mutating func run() throws {
+        var deck = Deck.standard52CardDeck()
+        deck.shuffle()
 
-for _ in 0..<numberOfCards {
-    guard let card = deck.deal() else {
-        print("No More Cards!")
-        break
+        for _ in 0..<numberOfCards {
+            guard let card = deck.deal() else {
+                print("No More Cards!")
+                break
+            }
+
+            print(card)
+        }
     }
-
-    print(card)
 }
+
+Deal.main()
