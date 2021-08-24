@@ -15,6 +15,9 @@ import PackageDescription
 
 let package = Package(
     name: "dealer",
+    platforms: [
+        .macOS(.v11)
+    ],
     products: [
         .executable(name: "dealer", targets: ["dealer"]),
     ],

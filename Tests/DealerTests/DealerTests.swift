@@ -12,35 +12,43 @@ import XCTest
 import class Foundation.Bundle
 
 final class DealerTests: XCTestCase {
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
+    func testUsage() throws {
+        let (status, output, error) = try execute(with: ["--help"])
+        XCTAssertEqual(status, EXIT_SUCCESS)
+        XCTAssert(output?.starts(with: "OVERVIEW: Shuffles a deck of playing cards and deals a number of cards.") ?? false)
+        XCTAssertEqual(error, "")
+    }
 
-        // Some of the APIs that we use below are available in macOS 10.13 and above.
-        guard #available(macOS 10.13, *) else {
-            return
-        }
+    func testDealOneCard() throws {
+        let (status, output, error) = try execute(with: ["1"])
+        XCTAssertEqual(status, EXIT_SUCCESS)
+        XCTAssertEqual(output?.filter(\.isPlayingCardSuit).count, 1)
 
-        // Mac Catalyst won't have `Process`, but it is supported for executables.
-        #if !targetEnvironment(macCatalyst)
+        XCTAssertEqual(error, "")
+    }
 
-        let dealerBinary = productsDirectory.appendingPathComponent("dealer")
+    func testDealTenCards() throws {
+        let (status, output, error) = try execute(with: ["10"])
+        XCTAssertEqual(status, EXIT_SUCCESS)
+        XCTAssertEqual(output?.filter(\.isPlayingCardSuit).count, 10)
 
-        let process = Process()
-        process.executableURL = dealerBinary
+        XCTAssertEqual(error, "")
+    }
 
-        let pipe = Pipe()
-        process.standardOutput = pipe
+    func testDealThirteenCardsFourTimes() throws {
+        let (status, output, error) = try execute(with: ["13", "13", "13", "13"])
+        XCTAssertEqual(status, EXIT_SUCCESS)
+        XCTAssertEqual(output?.filter(\.isPlayingCardSuit).count, 52)
+        XCTAssertEqual(output?.filter(\.isNewline).count, 4)
 
-        try process.run()
-        process.waitUntilExit()
+        XCTAssertEqual(error, "")
+    }
 
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        let output = String(data: data, encoding: .utf8)
-
-        XCTAssertNotEqual(output, "")
-        #endif
+    func testDealOneHundredCards() throws {
+        let (status, output, error) = try execute(with: ["100"])
+        XCTAssertNotEqual(status, EXIT_SUCCESS)
+        XCTAssertEqual(output, "")
+        XCTAssertEqual(error, "Error: Not enough cards\n")
     }
 
     /// Returns path to the built products directory.
@@ -53,5 +61,43 @@ final class DealerTests: XCTestCase {
       #else
         return Bundle.main.bundleURL
       #endif
+    }
+
+    private func execute(with arguments: [String] = []) throws -> (status: Int32, output: String?, error: String?) {
+        let process = Process()
+        process.executableURL = productsDirectory.appendingPathComponent("dealer")
+        process.arguments = arguments
+
+        let outputPipe = Pipe()
+        process.standardOutput = outputPipe
+
+        let errorPipe = Pipe()
+        process.standardError = errorPipe
+
+        try process.run()
+        process.waitUntilExit()
+
+        let status = process.terminationStatus
+
+        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        let output = String(data: outputData, encoding: .utf8)
+
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        let error = String(data: errorData, encoding: .utf8)
+
+        return (status, output, error)
+    }
+}
+
+// MARK: -
+
+private extension Character {
+    var isPlayingCardSuit: Bool {
+        switch self {
+        case "♠︎", "♡", "♢", "♣︎":
+            return true
+        default:
+            return false
+        }
     }
 }

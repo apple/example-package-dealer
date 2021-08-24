@@ -14,22 +14,33 @@ import Glibc
 
 import Foundation
 import DeckOfPlayingCards
+import PlayingCard
 import ArgumentParser
-
-var stdout = FileHandle.standardOutput
-var stderr = FileHandle.standardError
 
 @main
 struct Deal: ParsableCommand {
+    enum Error: Swift.Error, CustomStringConvertible {
+        case notEnoughCards
+
+        var description: String {
+            switch self {
+            case .notEnoughCards:
+                return "Not enough cards"
+            }
+        }
+    }
+
     static var configuration = CommandConfiguration(
             abstract: "Shuffles a deck of playing cards and deals a number of cards.",
             discussion: """
-                Prints each card to stdout until the deck is completely dealt,
-                and prints "No more cards" to stderr if there are no cards remaining.
+                For each count argument, prints a line of tab-delimited cards to stdout,
+                or if there aren't enough cards remaining,
+                prints "Not enough cards" to stderr and exits with a nonzero status.
                 """)
 
-    @Argument(help: "The number of cards to deal.")
-    var count: UInt = 10
+    @Argument(help: .init("The number of cards to deal at a time.",
+                          valueName: "count"))
+    var counts: [UInt]
 
     mutating func run() throws {
         #if os(Linux)
@@ -39,13 +50,18 @@ struct Deal: ParsableCommand {
         var deck = Deck.standard52CardDeck()
         deck.shuffle()
 
-        for _ in 0..<count {
-            guard let card = deck.deal() else {
-                print("No more cards", to: &stderr)
-                break
+        for count in counts {
+            var cards: [PlayingCard] = []
+
+            for _ in 0..<count {
+                guard let card = deck.deal() else {
+                    Self.exit(withError: Error.notEnoughCards)
+                }
+
+                cards.append(card)
             }
 
-            print(card, to: &stdout)
+            print(cards.map(\.description).joined(separator: "\t"))
         }
     }
 }
