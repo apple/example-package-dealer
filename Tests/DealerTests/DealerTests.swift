@@ -25,7 +25,7 @@ final class DealerTests: XCTestCase {
         // Mac Catalyst won't have `Process`, but it is supported for executables.
         #if !targetEnvironment(macCatalyst)
 
-        let dealerBinary = productsDirectory.appendingPathComponent("Dealer")
+        let dealerBinary = productsDirectory.appendingPathComponent("dealer")
 
         let process = Process()
         process.executableURL = dealerBinary
