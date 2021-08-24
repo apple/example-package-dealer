@@ -10,7 +10,6 @@
 
 #if os(Linux)
 import Glibc
-srandom(UInt32(clock()))
 #endif
 
 import Foundation
@@ -20,6 +19,7 @@ import ArgumentParser
 var stdout = FileHandle.standardOutput
 var stderr = FileHandle.standardError
 
+@main
 struct Deal: ParsableCommand {
     static var configuration = CommandConfiguration(
             abstract: "Shuffles a deck of playing cards and deals a number of cards.",
@@ -32,6 +32,10 @@ struct Deal: ParsableCommand {
     var count: UInt = 10
 
     mutating func run() throws {
+        #if os(Linux)
+        srandom(UInt32(clock()))
+        #endif
+
         var deck = Deck.standard52CardDeck()
         deck.shuffle()
 
@@ -45,5 +49,3 @@ struct Deal: ParsableCommand {
         }
     }
 }
-
-Deal.main()
